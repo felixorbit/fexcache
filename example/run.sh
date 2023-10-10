@@ -1,5 +1,5 @@
 #!/bin/bash
-trap "rm server;kill 0" EXIT
+trap "rm server;kill 0" EXIT // 监视拦截 EXIT 信号删除临时文件
 
 go build -o server
 ./server -port=8001 &

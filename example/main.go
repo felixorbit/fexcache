@@ -29,6 +29,7 @@ func createGroup() *fexcache.Group {
 	}))
 }
 
+// CacheServer 用于节点间通信
 func startCacheServer(addr string, addrs []string, group *fexcache.Group) {
 	pool := fexcache.NewHTTPPool(addr)
 	pool.SetPeers(addrs...)
@@ -37,6 +38,7 @@ func startCacheServer(addr string, addrs []string, group *fexcache.Group) {
 	log.Fatal(http.ListenAndServe(addr[7:], pool))
 }
 
+// APIServer 与用户交互
 func startAPIServer(apiAddr string, group *fexcache.Group) {
 	http.Handle("/api", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Query().Get("key")

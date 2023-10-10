@@ -1,6 +1,8 @@
 package fexcache
 
 import (
+	pb "felixorb/fexcache/fexcachepb"
+	"felixorb/fexcache/singleflight"
 	"fmt"
 	"log"
 	"sync"
@@ -12,6 +14,7 @@ type Group struct {
 	mainCache cache
 	peers     PeerPicker // 远程节点选择器
 	getter    Getter     // 缓存不存在时的回调接口
+	loader    *singleflight.Group
 }
 
 var (
@@ -37,6 +40,7 @@ func NewGroup(name string, cacheBytes int64, getter Getter) *Group {
 		name:      name,
 		mainCache: cache{cacheBytes: cacheBytes},
 		getter:    getter,
+		loader:    &singleflight.Group{},
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -67,24 +71,32 @@ func (g *Group) getLocally(key string) (ByteView, error) {
 
 // 从其他远程节点获取数据
 func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
-	bytes, err := peer.Get(g.name, key)
+	req := &pb.Request{Group: g.name, Key: key}
+	res := &pb.Response{}
+	err := peer.Get(req, res)
 	if err != nil {
 		return ByteView{}, err
 	}
-	return ByteView{b: bytes}, nil
+	return ByteView{b: res.Value}, nil
 }
 
-func (g *Group) load(key string) (ByteView, error) {
-	if g.peers != nil {
-		if peer, ok := g.peers.PickPeer(key); ok {
-			if view, err := g.getFromPeer(peer, key); err == nil {
-				return view, nil
+// 实现 singleflight
+func (g *Group) load(key string) (value ByteView, err error) {
+	viewi, err := g.loader.Do(key, func() (interface{}, error) {
+		if g.peers != nil {
+			if peer, ok := g.peers.PickPeer(key); ok {
+				if view, err := g.getFromPeer(peer, key); err == nil {
+					return view, nil
+				}
+				log.Println("Failed to get from peer")
 			}
-			log.Println("Failed to get from peer")
 		}
+		return g.getLocally(key)
+	})
+	if err == nil {
+		return viewi.(ByteView), nil
 	}
-
-	return g.getLocally(key)
+	return
 }
 
 // Get 获取数据的主要逻辑
