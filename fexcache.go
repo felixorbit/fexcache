@@ -1,11 +1,12 @@
 package fexcache
 
 import (
-	pb "felixorb/fexcache/fexcachepb"
-	"felixorb/fexcache/singleflight"
 	"fmt"
 	"log"
 	"sync"
+
+	pb "github.com/felixorbit/fexcache/fexcachepb"
+	"github.com/felixorbit/fexcache/singleflight"
 )
 
 // Group 是核心结构。负责与外部交互

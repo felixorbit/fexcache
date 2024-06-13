@@ -1,8 +1,6 @@
 package fexcache
 
 import (
-	"felixorb/fexcache/consistenthash"
-	pb "felixorb/fexcache/fexcachepb"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/felixorbit/fexcache/consistenthash"
+	pb "github.com/felixorbit/fexcache/fexcachepb"
 	"google.golang.org/protobuf/proto"
 )
 

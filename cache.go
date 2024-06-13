@@ -1,8 +1,9 @@
 package fexcache
 
 import (
-	"felixorb/fexcache/lru"
 	"sync"
+
+	"github.com/felixorbit/fexcache/lru"
 )
 
 // 通过互斥锁进行并发访问控制

@@ -1,7 +1,7 @@
 package fexcache
 
 import (
-	pb "felixorb/fexcache/fexcachepb"
+	pb "github.com/felixorbit/fexcache/fexcachepb"
 )
 
 type PeerPicker interface {

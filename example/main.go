@@ -1,11 +1,12 @@
 package main
 
 import (
-	"felixorb/fexcache"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/felixorbit/fexcache"
 )
 
 // HTTPPool 一方面作为服务端响应远程的请求，一方面作为客户端，请求其他远程节点
